@@ -1,4 +1,4 @@
-from database import add_company, create_companies_table, create_connection, get_companies,delete_company
+from database import add_company, create_companies_table,update_company, create_connection, get_companies,delete_company
 
 
 def show_menu() -> None:
@@ -59,7 +59,48 @@ try:
                         print("There is no company with this ID.")
                 else:
                     print("Company ID must be a number")
-                    
+
+        elif choice == "4":
+            companies = get_companies(connection)
+
+            for company in companies:
+                print(company)
+
+            while True:
+                company_id = input(
+                    "Select the company ID you want to update (0 to cancel): "
+                ).strip()
+
+                if company_id == "0":
+                    break
+
+                valid_ids = []
+
+                for company in companies:
+                    valid_ids.append(str(company[0]))
+
+                if company_id not in valid_ids:
+                    print("There is no company with this ID.")
+                    continue
+
+                new_name = input("Enter the new name: ").strip()
+                new_country = input("Enter the new country: ").strip()
+
+                if new_name == "" or new_country == "":
+                    print("Company name and country cannot be empty.")
+                    continue
+
+                update_company(
+                    connection,
+                    int(company_id),
+                    new_name,
+                    new_country,
+                )
+
+                print(f"Company number {company_id} is updated.")
+                break
+        
+
         elif choice == "0":
             print("Goodbye.")
             break

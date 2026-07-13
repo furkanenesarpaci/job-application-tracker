@@ -16,10 +16,13 @@ def create_companies_table(connection: sqlite3.Connection) -> None:
     connection.commit()
 
 def add_company(connection: sqlite3.Connection, name: str, country: str) -> None:
-    connection.execute("""
-        INSERT INTO companies (name, country)
-        VALUES (?, ?)
-    """, (name, country))
+    connection.execute(
+    """
+    INSERT INTO companies (name, country)
+    VALUES (?, ?)
+    """, 
+    (name, country),
+    )
     connection.commit()
     
 def get_companies(connection: sqlite3.Connection) -> list[tuple]:
@@ -28,5 +31,16 @@ def get_companies(connection: sqlite3.Connection) -> list[tuple]:
     return companies
 
 def delete_company(connection: sqlite3.Connection, company_id: int) -> None:
-        connection.execute("DELETE FROM companies WHERE id = ?",(company_id,),)
-        connection.commit()
+    connection.execute("DELETE FROM companies WHERE id = ?",(company_id,),)
+    connection.commit()
+
+def update_company (connection:sqlite3.Connection, company_id : int,name : str,country : str) -> None:
+    connection.execute(
+    """
+    UPDATE companies
+    SET name = ?, country = ?
+    WHERE id = ?
+    """,
+    (name, country, company_id),
+    )
+    connection.commit()
