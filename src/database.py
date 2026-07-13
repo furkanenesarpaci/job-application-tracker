@@ -26,3 +26,7 @@ def get_companies(connection: sqlite3.Connection) -> list[tuple]:
     cursor = connection.execute("SELECT id, name, country FROM companies")
     companies = cursor.fetchall()
     return companies
+
+def delete_company(connection: sqlite3.Connection, company_id: int) -> None:
+        connection.execute("DELETE FROM companies WHERE id = ?",(company_id,),)
+        connection.commit()
