@@ -5,12 +5,15 @@ from database import create_connection
 from database import get_companies
 from database import delete_company
 from database import company_exists
+from database import search_companies
 
 
 def show_menu() -> None:
     print("\n1. Add company")
     print("2. List companies")
     print("3. Delete company")
+    print("4. Update company")
+    print("5. Search company")
     print("0. Exit")
 
 
@@ -30,7 +33,7 @@ try:
 
             if company_name == "" or company_country == "":
                 print("Company name and country cannot be empty.")
-                
+
             elif company_exists(connection, company_name, company_country):
                 print("This company already exists.")
             else:
@@ -50,7 +53,7 @@ try:
                 print(company)
 
             while True:
-                company_id = input("Enter the ID of the company you want to delete,(0 to cancel) ").strip()
+                company_id = input("Enter the ID of the company you want to delete,(0 for menu) ").strip()
                 
                 if company_id == "0":
                     break
@@ -77,7 +80,7 @@ try:
 
             while True:
                 company_id = input(
-                    "Select the company ID you want to update (0 to cancel): "
+                    "Select the company ID you want to update (0 for menu): "
                 ).strip()
 
                 if company_id == "0":
@@ -108,6 +111,27 @@ try:
 
                 print(f"Company number {company_id} is updated.")
                 break
+        
+        elif choice == "5":
+            while True:
+                    search_term = input("Enter the company name to search (0 for menu): "
+                    ).strip()
+
+                    if search_term == "0":
+                        break
+
+                    if search_term == "":
+                        print("Search term cannot be empty.")
+                        continue
+
+                    companies = search_companies(connection, search_term)
+
+                    if not companies:
+                        print("No companies found.")
+                        continue
+
+                    for company in companies:
+                        print(company)
         
 
         elif choice == "0":

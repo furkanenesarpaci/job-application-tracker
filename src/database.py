@@ -57,3 +57,15 @@ def company_exists(connection: sqlite3.Connection,name: str,country: str,) -> bo
     )
 
     return cursor.fetchone() is not None
+
+def search_companies(connection: sqlite3.Connection,search_term: str,) -> list[tuple]:
+    cursor = connection.execute(
+        """
+        SELECT id, name, country
+        FROM companies
+        WHERE LOWER(name) LIKE LOWER(?)
+        ORDER BY name
+        """,
+        (f"%{search_term}%",),
+    )
+    return cursor.fetchall()
