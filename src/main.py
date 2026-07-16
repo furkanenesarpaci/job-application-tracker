@@ -1,4 +1,10 @@
-from database import add_company, create_companies_table,update_company, create_connection, get_companies,delete_company
+from database import add_company
+from database import create_companies_table
+from database import update_company
+from database import create_connection
+from database import get_companies
+from database import delete_company
+from database import company_exists
 
 
 def show_menu() -> None:
@@ -24,6 +30,9 @@ try:
 
             if company_name == "" or company_country == "":
                 print("Company name and country cannot be empty.")
+                
+            elif company_exists(connection, company_name, company_country):
+                print("This company already exists.")
             else:
                 add_company(connection, company_name, company_country)
                 print("Company added.")

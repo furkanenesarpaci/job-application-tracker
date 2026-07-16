@@ -44,3 +44,16 @@ def update_company (connection:sqlite3.Connection, company_id : int,name : str,c
     (name, country, company_id),
     )
     connection.commit()
+
+def company_exists(connection: sqlite3.Connection,name: str,country: str,) -> bool:
+    cursor = connection.execute(
+        """
+        SELECT id
+        FROM companies
+        WHERE LOWER(name) = LOWER(?)
+          AND LOWER(country) = LOWER(?)
+        """,
+        (name, country),
+    )
+
+    return cursor.fetchone() is not None
