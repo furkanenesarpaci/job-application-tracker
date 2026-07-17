@@ -1,4 +1,5 @@
 from datetime import date
+
 from database import add_company
 from database import create_companies_table
 from database import update_company
@@ -9,6 +10,7 @@ from database import company_exists
 from database import search_companies
 from database import create_applications_table
 from database import add_application
+from database import get_applications
 
 
 def show_menu() -> None:
@@ -18,6 +20,7 @@ def show_menu() -> None:
     print("4. Update company")
     print("5. Search company")
     print("6. Add application")
+    print("7. List applications")
     print("0. Exit")
 
 
@@ -230,6 +233,22 @@ try:
                     continue
 
                 break
+        
+        elif choice == "7":
+            applications = get_applications(connection)
+
+            if not applications:
+                print("There are no applications.")
+                continue
+
+            for application in applications:
+                print(
+                    f"ID: {application[0]} | "
+                    f"Company: {application[1]} | "
+                    f"Position: {application[2]} | "
+                    f"Status: {application[3]} | "
+                    f"Applied at: {application[4]}"
+                )
         
 
         elif choice == "0":

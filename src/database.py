@@ -105,3 +105,21 @@ def add_application(
         (company_id, position, status, applied_at),
     )
     connection.commit()
+
+def get_applications(connection: sqlite3.Connection,) -> list[tuple]:
+        
+    cursor = connection.execute(
+        """
+        SELECT
+            applications.id,
+            companies.name,
+            applications.position,
+            applications.status,
+            applications.applied_at
+        FROM applications
+        JOIN companies
+            ON applications.company_id = companies.id
+        ORDER BY applications.id
+        """
+    )
+    return cursor.fetchall()
