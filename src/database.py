@@ -69,3 +69,39 @@ def search_companies(connection: sqlite3.Connection,search_term: str,) -> list[t
         (f"%{search_term}%",),
     )
     return cursor.fetchall()
+
+def create_applications_table(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id INTEGER NOT NULL,
+            position TEXT NOT NULL,
+            status TEXT NOT NULL,
+            applied_at TEXT NOT NULL,
+            FOREIGN KEY (company_id) REFERENCES companies (id)
+        )
+        """
+    )
+    connection.commit()
+
+def add_application(
+    connection: sqlite3.Connection,
+    company_id: int,
+    position: str,
+    status: str,
+    applied_at: str,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO applications (
+            company_id,
+            position,
+            status,
+            applied_at
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (company_id, position, status, applied_at),
+    )
+    connection.commit()

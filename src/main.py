@@ -1,3 +1,4 @@
+from datetime import date
 from database import add_company
 from database import create_companies_table
 from database import update_company
@@ -6,6 +7,8 @@ from database import get_companies
 from database import delete_company
 from database import company_exists
 from database import search_companies
+from database import create_applications_table
+from database import add_application
 
 
 def show_menu() -> None:
@@ -14,6 +17,7 @@ def show_menu() -> None:
     print("3. Delete company")
     print("4. Update company")
     print("5. Search company")
+    print("6. Add application")
     print("0. Exit")
 
 
@@ -22,6 +26,7 @@ connection = create_connection()
 
 try:
     create_companies_table(connection)
+    create_applications_table(connection)
 
     while True:
         show_menu()
@@ -132,6 +137,99 @@ try:
 
                     for company in companies:
                         print(company)
+
+        elif choice == "6":
+            companies = get_companies(connection)
+
+            if not companies:
+                print("There are no companies. Add a company first.")
+                continue
+
+            for company in companies:
+                print(company)
+
+            valid_ids = []
+
+            for company in companies:
+                valid_ids.append(str(company[0]))
+
+            while True:
+                company_id = input(
+                    "Select the company ID (0 to return to main menu): "
+                ).strip()
+
+                if company_id == "0":
+                    break
+
+                if company_id not in valid_ids:
+                    print("There is no company with this ID.")
+                    continue
+
+                while True:
+                    position = input(
+                        "Enter the position (0 to go back): "
+                    ).strip()
+
+                    if position == "0":
+                        break
+
+                    if position == "":
+                        print("Position cannot be empty.")
+                        continue
+
+                    statuses = (
+                        "saved",
+                        "applied",
+                        "interview",
+                        "offer",
+                        "rejected",
+                        "withdrawn",
+                    )
+
+                    while True:
+                        for index, status in enumerate(statuses, start=1):
+                            print(f"{index}. {status}")
+
+                        status_choice = input(
+                            "Select application status (0 to go back): "
+                        ).strip()
+
+                        if status_choice == "0":
+                            break
+
+                        try:
+                            status_index = int(status_choice)
+                        except ValueError:
+                            print("Status selection must be a number.")
+                            continue
+
+                        if status_index < 1 or status_index > len(statuses):
+                            print("Invalid status selection.")
+                            continue
+
+                        selected_status = statuses[status_index - 1]
+                        applied_at = date.today().isoformat()
+
+                        add_application(
+                            connection,
+                            int(company_id),
+                            position,
+                            selected_status,
+                            applied_at,
+                        )
+
+                        print("Application added.")
+                        break
+
+                    if status_choice == "0":
+                        continue
+
+                    break
+
+                if position == "0":
+                    continue
+
+                break
         
 
         elif choice == "0":
