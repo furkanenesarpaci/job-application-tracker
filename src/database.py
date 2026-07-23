@@ -123,3 +123,19 @@ def get_applications(connection: sqlite3.Connection,) -> list[tuple]:
         """
     )
     return cursor.fetchall()
+
+def update_application(
+    connection: sqlite3.Connection,
+    application_id: int,
+    position: str,
+    status: str,
+) -> None:
+    connection.execute(
+        """
+        UPDATE applications
+        SET position = ?, status = ?
+        WHERE id = ?
+        """,
+        (position, status, application_id),
+    )
+    connection.commit()

@@ -11,6 +11,7 @@ from database import search_companies
 from database import create_applications_table
 from database import add_application
 from database import get_applications
+from database import update_application
 
 
 def show_menu() -> None:
@@ -21,6 +22,7 @@ def show_menu() -> None:
     print("5. Search company")
     print("6. Add application")
     print("7. List applications")
+    print("8. Update application")
     print("0. Exit")
 
 
@@ -249,6 +251,105 @@ try:
                     f"Status: {application[3]} | "
                     f"Applied at: {application[4]}"
                 )
+        
+        elif choice == "8":
+            applications = get_applications(connection)
+
+            if not applications:
+                print("There are no applications.")
+                continue
+
+            for application in applications:
+                print(
+                    f"ID: {application[0]} | "
+                    f"Company: {application[1]} | "
+                    f"Position: {application[2]} | "
+                    f"Status: {application[3]} | "
+                    f"Applied at: {application[4]}"
+                )
+
+            valid_ids = []
+
+            for application in applications:
+                valid_ids.append(str(application[0]))
+
+            while True:
+                application_id = input(
+                    "Select the application ID (0 to return to main menu): "
+                ).strip()
+
+                if application_id == "0":
+                    break
+
+                if application_id not in valid_ids:
+                    print("There is no application with this ID.")
+                    continue
+
+                while True:
+                    new_position = input(
+                        "Enter the new position (0 to go back): "
+                    ).strip()
+
+                    if new_position == "0":
+                        break
+
+                    if new_position == "":
+                        print("Position cannot be empty.")
+                        continue
+
+                    statuses = (
+                        "saved",
+                        "applied",
+                        "interview",
+                        "offer",
+                        "rejected",
+                        "withdrawn",
+                    )
+
+                    while True:
+                        for index, status in enumerate(statuses, start=1):
+                            print(f"{index}. {status}")
+
+                        status_choice = input(
+                            "Select the new status (0 to go back): "
+                        ).strip()
+
+                        if status_choice == "0":
+                            break
+
+                        try:
+                            status_index = int(status_choice)
+                        except ValueError:
+                            print("Status selection must be a number.")
+                            continue
+
+                        if status_index < 1 or status_index > len(statuses):
+                            print("Invalid status selection.")
+                            continue
+
+                        selected_status = statuses[status_index - 1]
+
+                        update_application(
+                            connection,
+                            int(application_id),
+                            new_position,
+                            selected_status,
+                        )
+
+                        print(
+                            f"Application number {application_id} is updated."
+                        )
+                        break
+
+                    if status_choice == "0":
+                        continue
+
+                    break
+
+                if new_position == "0":
+                    continue
+
+                break
         
 
         elif choice == "0":
