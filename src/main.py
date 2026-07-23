@@ -12,6 +12,7 @@ from database import create_applications_table
 from database import add_application
 from database import get_applications
 from database import update_application
+from database import delete_application
 
 
 def show_menu() -> None:
@@ -23,6 +24,7 @@ def show_menu() -> None:
     print("6. Add application")
     print("7. List applications")
     print("8. Update application")
+    print("9. Delete application")
     print("0. Exit")
 
 
@@ -350,7 +352,44 @@ try:
                     continue
 
                 break
-        
+            
+        elif choice == "9":
+            applications = get_applications(connection)
+
+            if not applications:
+                print("There are no applications.")
+                continue
+
+            for application in applications:
+                print(
+                    f"ID: {application[0]} | "
+                    f"Company: {application[1]} | "
+                    f"Position: {application[2]} | "
+                    f"Status: {application[3]} | "
+                    f"Applied at: {application[4]}"
+                )
+
+            valid_ids = []
+
+            for application in applications:
+                valid_ids.append(str(application[0]))
+
+            while True:
+                application_id = input(
+                    "Select the application ID to delete "
+                    "(0 to return to main menu): "
+                ).strip()
+
+                if application_id == "0":
+                    break
+
+                if application_id not in valid_ids:
+                    print("There is no application with this ID.")
+                    continue
+
+                delete_application(connection, int(application_id))
+                print(f"Application number {application_id} is deleted.")
+                break        
 
         elif choice == "0":
             print("Goodbye.")

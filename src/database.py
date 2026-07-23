@@ -139,3 +139,16 @@ def update_application(
         (position, status, application_id),
     )
     connection.commit()
+
+def delete_application(
+    connection: sqlite3.Connection,
+    application_id: int,
+) -> None:
+    connection.execute(
+        """
+        DELETE FROM applications
+        WHERE id = ?
+        """,
+        (application_id,),
+    )
+    connection.commit()
