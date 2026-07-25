@@ -91,8 +91,8 @@ def add_application(
     position: str,
     status: str,
     applied_at: str,
-) -> None:
-    connection.execute(
+) -> int:
+    cursor = connection.execute(
         """
         INSERT INTO applications (
             company_id,
@@ -105,6 +105,7 @@ def add_application(
         (company_id, position, status, applied_at),
     )
     connection.commit()
+    return cursor.lastrowid
 
 def get_applications(connection: sqlite3.Connection,) -> list[tuple]:
         
@@ -150,5 +151,40 @@ def delete_application(
         WHERE id = ?
         """,
         (application_id,),
+    )
+    connection.commit()
+
+def create_application_status_history_table(
+    connection: sqlite3.Connection,
+) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS application_status_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            application_id INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            changed_at TEXT NOT NULL,
+            FOREIGN KEY (application_id) REFERENCES applications (id)
+        )
+        """
+    )
+    connection.commit()
+
+def add_application_status_history(
+    connection: sqlite3.Connection,
+    application_id: int,
+    status: str,
+    changed_at: str,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO application_status_history (
+            application_id,
+            status,
+            changed_at
+        )
+        VALUES (?, ?, ?)
+        """,
+        (application_id, status, changed_at),
     )
     connection.commit()

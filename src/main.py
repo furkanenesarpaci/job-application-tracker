@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 
 from database import add_company
 from database import create_companies_table
@@ -13,7 +14,8 @@ from database import add_application
 from database import get_applications
 from database import update_application
 from database import delete_application
-
+from database import create_application_status_history_table
+from database import add_application_status_history
 
 def show_menu() -> None:
     print("\n1. Add company")
@@ -34,6 +36,7 @@ connection = create_connection()
 try:
     create_companies_table(connection)
     create_applications_table(connection)
+    create_application_status_history_table(connection)
 
     while True:
         show_menu()
@@ -217,7 +220,7 @@ try:
                         selected_status = statuses[status_index - 1]
                         applied_at = date.today().isoformat()
 
-                        add_application(
+                        application_id = add_application(
                             connection,
                             int(company_id),
                             position,
@@ -225,6 +228,13 @@ try:
                             applied_at,
                         )
 
+                        changed_at = datetime.now().isoformat(timespec="seconds")
+                        add_application_status_history(
+                                connection,
+                                application_id,
+                                selected_status,
+                                changed_at,
+                        )
                         print("Application added.")
                         break
 
@@ -271,9 +281,14 @@ try:
                 )
 
             valid_ids = []
+            selected_application = None
 
             for application in applications:
                 valid_ids.append(str(application[0]))
+
+            for application in applications:
+                if str(application[0]) == application_id:
+                    break    
 
             while True:
                 application_id = input(
@@ -337,6 +352,15 @@ try:
                             new_position,
                             selected_status,
                         )
+
+                        if selected_status != selected_application[3]:
+                            changed_at = datetime.now().isoformat(timespec="seconds")
+                            add_application_status_history(
+                                connection,
+                                int(application_id),
+                                selected_status,
+                                changed_at,
+                            )        
 
                         print(
                             f"Application number {application_id} is updated."
