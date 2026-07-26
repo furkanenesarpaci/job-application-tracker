@@ -78,11 +78,29 @@ def create_applications_table(connection: sqlite3.Connection) -> None:
             company_id INTEGER NOT NULL,
             position TEXT NOT NULL,
             status TEXT NOT NULL,
-            applied_at TEXT NOT NULL,
+            created_at TEXT NOT NULL,
             FOREIGN KEY (company_id) REFERENCES companies (id)
         )
         """
     )
+
+    columns = connection.execute(
+        "PRAGMA table_info(applications)"
+    ).fetchall()
+
+    column_names = []
+
+    for column in columns:
+        column_names.append(column[1])
+
+    if "applied_at" in column_names and "created_at" not in column_names:
+        connection.execute(
+            """
+            ALTER TABLE applications
+            RENAME COLUMN applied_at TO created_at
+            """
+        )
+
     connection.commit()
 
 def add_application(
@@ -90,7 +108,7 @@ def add_application(
     company_id: int,
     position: str,
     status: str,
-    applied_at: str,
+    created_at: str,
 ) -> int:
     cursor = connection.execute(
         """
@@ -98,17 +116,18 @@ def add_application(
             company_id,
             position,
             status,
-            applied_at
+            created_at
         )
         VALUES (?, ?, ?, ?)
         """,
-        (company_id, position, status, applied_at),
+        (company_id, position, status, created_at),
     )
     connection.commit()
     return cursor.lastrowid
 
-def get_applications(connection: sqlite3.Connection,) -> list[tuple]:
-        
+def get_applications(
+    connection: sqlite3.Connection,
+) -> list[tuple]:
     cursor = connection.execute(
         """
         SELECT
@@ -116,7 +135,7 @@ def get_applications(connection: sqlite3.Connection,) -> list[tuple]:
             companies.name,
             applications.position,
             applications.status,
-            applications.applied_at
+            applications.created_at
         FROM applications
         JOIN companies
             ON applications.company_id = companies.id
@@ -188,3 +207,18 @@ def add_application_status_history(
         (application_id, status, changed_at),
     )
     connection.commit()
+
+def get_application_status_history(
+    connection: sqlite3.Connection,
+    application_id: int,
+) -> list[tuple]:
+    cursor = connection.execute(
+        """
+        SELECT id, status, changed_at
+        FROM application_status_history
+        WHERE application_id = ?
+        ORDER BY changed_at ASC, id ASC
+        """,
+        (application_id,),
+    )
+    return cursor.fetchall()

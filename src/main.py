@@ -16,6 +16,7 @@ from database import update_application
 from database import delete_application
 from database import create_application_status_history_table
 from database import add_application_status_history
+from database import get_application_status_history
 
 def show_menu() -> None:
     print("\n1. Add company")
@@ -27,6 +28,7 @@ def show_menu() -> None:
     print("7. List applications")
     print("8. Update application")
     print("9. Delete application")
+    print("10. View application status history")
     print("0. Exit")
 
 
@@ -218,14 +220,14 @@ try:
                             continue
 
                         selected_status = statuses[status_index - 1]
-                        applied_at = date.today().isoformat()
+                        created_at = datetime.now().isoformat(timespec="seconds")
 
                         application_id = add_application(
                             connection,
                             int(company_id),
                             position,
                             selected_status,
-                            applied_at,
+                            created_at,
                         )
 
                         changed_at = datetime.now().isoformat(timespec="seconds")
@@ -256,12 +258,22 @@ try:
                 continue
 
             for application in applications:
+                history = get_application_status_history(
+                    connection,
+                    application[0],
+                )
+
+                if len(history) > 1:
+                    last_updated = history[-1][2]
+                else:
+                    last_updated = application[4]
+
                 print(
                     f"ID: {application[0]} | "
                     f"Company: {application[1]} | "
                     f"Position: {application[2]} | "
                     f"Status: {application[3]} | "
-                    f"Applied at: {application[4]}"
+                    f"Last updated: {last_updated}"
                 )
         
         elif choice == "8":
@@ -281,14 +293,9 @@ try:
                 )
 
             valid_ids = []
-            selected_application = None
 
             for application in applications:
-                valid_ids.append(str(application[0]))
-
-            for application in applications:
-                if str(application[0]) == application_id:
-                    break    
+                valid_ids.append(str(application[0]))            
 
             while True:
                 application_id = input(
@@ -301,6 +308,13 @@ try:
                 if application_id not in valid_ids:
                     print("There is no application with this ID.")
                     continue
+
+                selected_application = None
+
+                for application in applications:
+                    if str(application[0]) == application_id:
+                        selected_application = application
+                        break    
 
                 while True:
                     new_position = input(
@@ -413,8 +427,54 @@ try:
 
                 delete_application(connection, int(application_id))
                 print(f"Application number {application_id} is deleted.")
-                break        
+                break
 
+        elif choice == "10":
+            applications = get_applications(connection)
+
+            if not applications:
+                print("There are no applications.")
+                continue
+
+            for application in applications:
+                print(
+                    f"ID: {application[0]} | "
+                    f"Company: {application[1]} | "
+                    f"Position: {application[2]} | "
+                    f"Status: {application[3]}"
+                )
+
+            valid_ids = []
+
+            for application in applications:
+                valid_ids.append(str(application[0]))
+
+            application_id = input(
+                "Select the application ID "
+                "(0 to return to main menu): "
+            ).strip()
+
+            if application_id == "0":
+                continue
+
+            if application_id not in valid_ids:
+                print("There is no application with this ID.")
+                continue
+
+            history = get_application_status_history(
+                connection,
+                int(application_id),
+            )
+
+            if not history:
+                print("There is no status history for this application.")
+                continue
+
+            for history_record in history:
+                print(
+                    f"Status: {history_record[1]} | "
+                    f"Changed at: {history_record[2]}"
+                )
         elif choice == "0":
             print("Goodbye.")
             break
