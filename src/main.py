@@ -222,7 +222,7 @@ try:
                         selected_status = statuses[status_index - 1]
                         created_at = datetime.now().isoformat(timespec="seconds")
 
-                        application_id = add_application(
+                        add_application(
                             connection,
                             int(company_id),
                             position,
@@ -230,13 +230,6 @@ try:
                             created_at,
                         )
 
-                        changed_at = datetime.now().isoformat(timespec="seconds")
-                        add_application_status_history(
-                                connection,
-                                application_id,
-                                selected_status,
-                                changed_at,
-                        )
                         print("Application added.")
                         break
 
@@ -249,7 +242,7 @@ try:
                     continue
 
                 break
-        
+                
         elif choice == "7":
             applications = get_applications(connection)
 
