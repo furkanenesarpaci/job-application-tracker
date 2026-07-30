@@ -256,7 +256,7 @@ try:
                     application[0],
                 )
 
-                if len(history) > 1:
+                if history:
                     last_updated = history[-1][2]
                 else:
                     last_updated = application[4]
@@ -460,7 +460,7 @@ try:
             )
 
             if not history:
-                print("There is no status history for this application.")
+                print("No status history.")
                 continue
 
             for history_record in history:
